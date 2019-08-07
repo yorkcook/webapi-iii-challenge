@@ -1,16 +1,6 @@
 // code away!
 
-const express = require("express");
-
-const server = express();
-
-const userRouter = require("./users/userRouter");
-
-const helmet = require("helmet");
-
-server.use(express.json());
-
-server.use("/", userRouter);
+const server = require("./server");
 
 server.listen(4000, () => {
   console.log("Server reporting for duty from port 4000!");
