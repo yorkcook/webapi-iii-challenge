@@ -6,7 +6,7 @@ let User = require("./userDb.js");
 
 let Post = require("../posts/postDb");
 
-router.post("/", (req, res) => {
+router.post("/", validateUser, (req, res) => {
   const user = req.body;
   if (user.name) {
     User.insert(user)
@@ -23,7 +23,7 @@ router.post("/", (req, res) => {
   }
 });
 
-router.post("/:id/posts", (req, res) => {
+router.post("/:id/posts", validateUserId, validatePost, (req, res) => {
   const post = req.body;
   if (post) {
     Post.insert(post)
@@ -48,7 +48,7 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", validateUserId, (req, res) => {
   const id = req.params.id;
   if (id) {
     User.getById(id)
@@ -63,7 +63,7 @@ router.get("/:id", (req, res) => {
   }
 });
 
-router.get("/:id/posts", (req, res) => {
+router.get("/:id/posts", validateUserId, (req, res) => {
   const id = req.params.id;
   if (id) {
     User.getUserPosts(id)
@@ -76,7 +76,7 @@ router.get("/:id/posts", (req, res) => {
   }
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateUserId, (req, res) => {
   const id = req.params.id;
 
   if (id) {
@@ -94,7 +94,7 @@ router.delete("/:id", (req, res) => {
   }
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateUserId, (req, res) => {
   const id = req.params.id;
   const update = req.body;
 
@@ -117,10 +117,55 @@ router.put("/:id", (req, res) => {
 
 //custom middleware
 
-function validateUserId(req, res, next) {}
+function validateUserId(req, res, next) {
+  if (typeof req.params.id === "number") {
+    res.status(400).json({ message: "Invalid user id sucka!" });
+  } else {
+    User.getById(req.params.id)
+      .then(user => {
+        if (user) {
+          req.user = user;
+          next();
+        } else {
+          res.status(400).json({
+            message: "Invalid user id sucka!"
+          });
+        }
+      })
+      .catch(error => {
+        res.status(500).json({ error: "You done got smurfed." });
+      });
+  }
+}
 
-function validateUser(req, res, next) {}
+function validateUser(req, res, next) {
+  if (!req.body) {
+    res
+      .status(400)
+      .json({ message: "You gotta bring that body.", "error code": "400" });
+  }
+  if (!req.body.name) {
+    res.status(400).json({
+      message: "We gotta know that name.",
+      "error code": "400"
+    });
+  }
+  next();
+}
 
-function validatePost(req, res, next) {}
+function validatePost(req, res, next) {
+  if (!req.body) {
+    return res
+      .status(400)
+      .json({ message: "What you trying to post?", "error code": "400" });
+  }
+  if (!req.body.text) {
+    return res.status(400).json({
+      message: "We gotta get those words.",
+      "error code": "400"
+    });
+  }
+  next();
+}
 
 module.exports = router;
