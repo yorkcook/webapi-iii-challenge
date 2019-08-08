@@ -21,7 +21,9 @@ server.use(logger);
 
 server.use("/", userRouter);
 server.get("/", (req, res) => {
-  res.send(`<h2>Let's write some middleware!</h2>`);
+  res.status(200).json({
+    jargonOfTheDay: process.env.JOTD
+  });
 });
 
 module.exports = server;
