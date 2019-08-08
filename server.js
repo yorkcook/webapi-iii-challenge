@@ -21,9 +21,7 @@ server.use(logger);
 
 server.use("/", userRouter);
 server.get("/server", (req, res) => {
-  res.status(200).json({
-    jargonOfTheDay: process.env.JOTD
-  });
+  res.status(200).send("jargonOfTheDay: process.env.JOTD");
 });
 
 module.exports = server;
