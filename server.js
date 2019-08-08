@@ -20,7 +20,7 @@ server.use(express.json());
 server.use(logger);
 
 server.use("/", userRouter);
-server.get("/", (req, res) => {
+server.get("/server", (req, res) => {
   res.status(200).json({
     jargonOfTheDay: process.env.JOTD
   });
